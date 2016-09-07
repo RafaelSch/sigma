@@ -1,0 +1,6 @@
+http://cactus.nci.nih.gov/chemical/structure/chloride/file?format=sdf&get3d=True
+__Jmol-12_03071211263D 1   1.00000     0.00000     0
+Jmol version 12.1.38_dev  2011-02-16 08:29 EXTRACT: ({0})
+  1  0  0  0  0  0              1 V2000
+   0.00000   0.00000   0.00000 Cl  0  5  0  0  0  0
+M  END
