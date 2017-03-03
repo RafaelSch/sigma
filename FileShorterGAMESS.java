@@ -6,44 +6,58 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.Scanner;
 
+/**
+ * File shorter for *.gout files
+ * @author gbflores
+ * @version 1.0.2
+ */
 public class FileShorterGAMESS {
 
+	/**
+	 * @param fileName the file that will be shorter
+	 */
 	public FileShorterGAMESS(String fileName) {
+		// destiny folder
 		String destString = "GAMESS_Output";
-		String destStringError = "problem"; 
+		// destiny folder for files with problem (gout not complete)
+		String destStringError = "problem";
+		
 		File file = new File(fileName);
 		Scanner input;
 		PrintWriter writer;
+		
+		// first read to verify if the gout end with no problem
 		try {
 			input = new Scanner(file);
 			input.useLocale(Locale.US);
 
 			String path = file.getAbsolutePath().replace(file.getName(), "");
-			File destiny = new File(path+destString);
-			if(!destiny.exists())
+			File destiny = new File(path + destString);
+			if (!destiny.exists())
 				destiny.mkdir();
-			File destinyError = new File(path+destStringError);
-			if(!destinyError.exists())
+			File destinyError = new File(path + destStringError);
+			if (!destinyError.exists())
 				destinyError.mkdir();
-
 
 			String tmp = "";
 			boolean exitedGracefully = false;
-			while(input.hasNext()) {
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("exited gracefully")){
+				if (tmp.contains("exited gracefully")) {
 					exitedGracefully = true;
 					break;
 				}
 			}
 
-			if(exitedGracefully){
-				writer = new PrintWriter(new FileWriter(destiny +"/"+ file.getName()));
-			}else {
-				writer = new PrintWriter(new FileWriter(destinyError +"/"+ file.getName()));
+			if (exitedGracefully) {
+				writer = new PrintWriter(new FileWriter(destiny + "/" + file.getName()));
+			} else {
+				writer = new PrintWriter(new FileWriter(destinyError + "/" + file.getName()));
 			}
 
 			input.close();
+
+			// second read to short only files without problems
 			input = new Scanner(file);
 			input.useLocale(Locale.US);
 
@@ -52,11 +66,11 @@ public class FileShorterGAMESS {
 			writer.println("----- GAMESS execution script -----");
 			writer.println();
 
-			while(input.hasNext()){
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("*****")){
+				if (tmp.contains("*****")) {
 					writer.println(tmp);
-					while(!line.contains("*****")){
+					while (!line.contains("*****")) {
 						line = input.nextLine();
 						writer.println(line);
 					}
@@ -65,11 +79,11 @@ public class FileShorterGAMESS {
 					break;
 				}
 			}
-			while(input.hasNext()){
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("EXECUTION OF GAMESS")){
+				if (tmp.contains("EXECUTION OF GAMESS")) {
 					writer.println(tmp);
-					while(!line.contains("INTERNUCLEAR")){
+					while (!line.contains("INTERNUCLEAR")) {
 						line = input.nextLine();
 						writer.println(line);
 					}
@@ -81,9 +95,8 @@ public class FileShorterGAMESS {
 				}
 			}
 
-			while(input.hasNext()){
-				if(input.next().equals("$CONTRL")
-						&& input.next().equals("OPTIONS")){
+			while (input.hasNext()) {
+				if (input.next().equals("$CONTRL") && input.next().equals("OPTIONS")) {
 					writer.println();
 					writer.print("     $CONTRL OPTIONS");
 					line = input.nextLine();
@@ -96,13 +109,12 @@ public class FileShorterGAMESS {
 				}
 			}
 
-			while(input.hasNext()){
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("***** EQUILIBRIUM")){
+				if (tmp.contains("***** EQUILIBRIUM")) {
 					writer.println("");
 					writer.println(tmp);
-					while(!line.contains("INTERNUCLEAR"))
-					{
+					while (!line.contains("INTERNUCLEAR")) {
 						line = input.nextLine();
 						writer.println(line);
 					}
@@ -113,13 +125,12 @@ public class FileShorterGAMESS {
 				}
 			}
 
-			while(input.hasNext()){
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("====")){
+				if (tmp.contains("====")) {
 					writer.println(tmp);
 					line = input.nextLine();
-					while(!line.contains("----- accounting info -----"))
-					{
+					while (!line.contains("----- accounting info -----")) {
 						writer.println(line);
 						line = input.nextLine();
 					}
@@ -129,16 +140,19 @@ public class FileShorterGAMESS {
 			}
 			input.close();
 			writer.close();
-			if(destinyError.list().length==0)
+			if (destinyError.list().length == 0)
 				destinyError.delete();
-
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-
 	}
+
+	/**Time to complete the calculus of GAMESS
+	 * @param fileName
+	 * @return time to compute the gout
+	 */
 	public double getTime(String fileName) {
 		File file = new File(fileName);
 		Scanner input;
@@ -150,9 +164,9 @@ public class FileShorterGAMESS {
 			input.useLocale(Locale.US);
 
 			String tmp = "";
-			while(input.hasNext()) {
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("exited gracefully")){
+				if (tmp.contains("exited gracefully")) {
 					exitedGracefully = true;
 					break;
 				}
@@ -162,9 +176,9 @@ public class FileShorterGAMESS {
 			input = new Scanner(file);
 			input.useLocale(Locale.US);
 
-			while(input.hasNext()){
+			while (input.hasNext()) {
 				tmp = input.nextLine();
-				if(tmp.contains("CPU timing information for all processes")){
+				if (tmp.contains("CPU timing information for all processes")) {
 					input.nextLine();
 					String s = input.nextLine();
 					String s2[] = s.split("= ");
@@ -177,21 +191,26 @@ public class FileShorterGAMESS {
 			e.printStackTrace();
 		}
 
-
-		return exitedGracefully ? time:-1;
+		return exitedGracefully ? time : -1;
 	}
 
+	/** for each file in this folder, will verify if gout ends without problems,
+	 * if yes, will rewrite the file at "GAMESS_Output" folder;
+	 * @param args
+	 */
 	public static void main(String[] args) {
-
+		
+		
+		
 		String path = "./";
 		File dir;
 		String[] files;
 		dir = new File(path);
 		files = dir.list();
 		for (int i = 0; i < files.length; i++) {
-			if(files[i].endsWith(".gout")){
+			if (files[i].endsWith(".gout")) {
 				try {
-					new FileShorterGAMESS(path+files[i]);
+					new FileShorterGAMESS(path + files[i]);
 					System.out.println(files[i]);
 				} catch (Exception e) {
 					System.err.println(files[i]);
